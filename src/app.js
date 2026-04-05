@@ -14,7 +14,28 @@ import errorMiddleware from "./middlewares/errorMiddleware.js";
 
 const app = express();
 
-app.use(cors());
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "https://mohamedhsokkar.github.io",
+  ...(process.env.CORS_ORIGINS?.split(",").map(origin => origin.trim()).filter(Boolean) || [])
+];
+
+const corsOptions = {
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new Error(`Origin ${origin} is not allowed by CORS`));
+  },
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+};
+
+app.use(cors(corsOptions));
+
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(cookieParser());
