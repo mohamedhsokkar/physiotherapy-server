@@ -1,4 +1,9 @@
-import { registerUser, loginUser, getCurrentUser } from "./auth.service.js";
+import {
+  registerUser,
+  loginUser,
+  getCurrentUser,
+  getUsers
+} from "./auth.service.js";
 
 const register = async (req, res, next) => {
   try {
@@ -60,4 +65,18 @@ const me = async (req, res, next) => {
   }
 };
 
-export { register, login, me };
+const listUsers = async (req, res, next) => {
+  try {
+    const users = await getUsers(req.query);
+
+    res.status(200).json({
+      success: true,
+      data: users
+    });
+  } catch (error) {
+    res.status(error.statusCode || 500);
+    next(error);
+  }
+};
+
+export { register, login, me, listUsers };

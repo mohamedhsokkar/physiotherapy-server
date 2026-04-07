@@ -62,8 +62,25 @@ const getCurrentUser = async (userId) => {
   return user;
 };
 
+const getUsers = async ({ role, isActive } = {}) => {
+  const query = {};
+
+  if (role) {
+    query.role = role;
+  }
+
+  if (isActive !== undefined) {
+    query.isActive = isActive === "true";
+  }
+
+  return await User.find(query)
+    .select("-password")
+    .sort({ name: 1, createdAt: -1 });
+};
+
 export {
   registerUser,
   loginUser,
-  getCurrentUser
+  getCurrentUser,
+  getUsers
 };
