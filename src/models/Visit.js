@@ -68,7 +68,7 @@ const visitSchema = new mongoose.Schema(
   }
 );
 
-visitSchema.pre("save", function (next) {
+visitSchema.pre("save", function () {
   if (this.amountPaid <= 0) {
     this.paymentStatus = "unpaid";
   } else if (this.amountPaid < this.totalAmount) {
@@ -76,8 +76,6 @@ visitSchema.pre("save", function (next) {
   } else {
     this.paymentStatus = "paid";
   }
-
-  next();
 });
 
 const Visit = mongoose.model("Visit", visitSchema);
