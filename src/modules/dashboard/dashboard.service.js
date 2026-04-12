@@ -1,6 +1,7 @@
 import Patient from "../../models/Patient.js";
 import Visit from "../../models/Visit.js";
 import Expense from "../../models/Expense.js";
+import { refreshPatientStatuses } from "../../utils/patientStatus.js";
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
@@ -132,6 +133,8 @@ const getTodaySchedule = async (startOfToday, endOfToday) => {
 };
 
 const getOverview = async () => {
+  await refreshPatientStatuses();
+
   const {
     startOfToday,
     endOfToday,
@@ -396,6 +399,8 @@ const getVisitSummary = async () => {
 };
 
 const getRecentActivity = async () => {
+  await refreshPatientStatuses();
+
   const [recentPatients, recentVisits, recentExpenses] = await Promise.all([
     Patient.find()
       .sort({ createdAt: -1 })

@@ -1,4 +1,5 @@
 import Patient from "../../models/Patient.js";
+import { refreshPatientStatuses } from "../../utils/patientStatus.js";
 
 const createPatient = async (payload, userId) => {
   const patient = await Patient.create({
@@ -10,6 +11,8 @@ const createPatient = async (payload, userId) => {
 };
 
 const getPatients = async ({ page = 1, limit = 10, search = "", status }) => {
+  await refreshPatientStatuses();
+
   const query = {};
 
   if (search) {
@@ -48,6 +51,8 @@ const getPatients = async ({ page = 1, limit = 10, search = "", status }) => {
 };
 
 const getPatientById = async (patientId) => {
+  await refreshPatientStatuses([patientId]);
+
   const patient = await Patient.findById(patientId).populate(
     "createdBy",
     "name email role"

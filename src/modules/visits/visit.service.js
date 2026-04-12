@@ -1,6 +1,10 @@
 import Visit from "../../models/Visit.js";
 import Patient from "../../models/Patient.js";
 import User from "../../models/User.js";
+import {
+  refreshPatientStatus,
+  refreshPatientStatuses
+} from "../../utils/patientStatus.js";
 
 const ensurePatientExists = async (patientId) => {
   const patient = await Patient.findById(patientId);
@@ -46,6 +50,8 @@ const createVisit = async (payload, userId) => {
     ...payload,
     registeredBy: userId
   });
+
+  await refreshPatientStatus(visit.patient);
 
   return await Visit.findById(visit._id)
     .populate("patient", "fullName phone gender")
@@ -149,9 +155,16 @@ const updateVisit = async (visitId, payload) => {
     throw error;
   }
 
+  const previousPatientId = visit.patient;
+
   Object.assign(visit, payload);
 
   await visit.save();
+  await refreshPatientStatuses([
+    previousPatientId,
+    visit.patient,
+    payload.patient
+  ]);
 
   return await Visit.findById(visit._id)
     .populate("patient", "fullName phone gender")
@@ -169,6 +182,7 @@ const deleteVisit = async (visitId) => {
   }
 
   await visit.deleteOne();
+  await refreshPatientStatus(visit.patient);
 
   return { message: "Visit deleted successfully" };
 };
